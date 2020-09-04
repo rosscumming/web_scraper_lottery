@@ -1,52 +1,74 @@
 const puppeteer = require("puppeteer");
 
-(async () => {
-  const browser = await puppeteer.launch();
+let LottoScraper = async () => {
+  const browser = await puppeteer.launch({ headless: false });
   const page = await browser.newPage();
-
   const URL = "https://www.national-lottery.co.uk/results/lotto/draw-history";
-  await page.goto(URL);
+  const home = "https://www.national-lottery.co.uk/games/lotto";
+  await page.goto(URL, { waitUntil: "load" });
 
-  const getDrawDate = await page.evaluate(() => {
-    let draw = document.querySelectorAll(
-      "#draw_history_lotto > ul > li:nth-child(2) > ul > li.table_cell.table_cell_1.table_cell_1_width_no_raffle.table_cell_first > div > span"
-    );
+  const [drawElement] = await page.$x(
+    '//*[@id="draw_history_lotto"]/ul/li[2]/ul/li[1]/div/span'
+  );
+  const drawText = drawElement.getProperty("innerText");
+  const draw = await (await drawText).jsonValue();
 
-    let drawDate = [...draw];
-    return drawDate.map((e) => e.innerText);
-  });
+  const [jackpotElement] = await page.$x(
+    '//*[@id="draw_history_lotto"]/ul/li[2]/ul/li[2]/div/span'
+  );
+  const jackpotText = jackpotElement.getProperty("innerText");
+  const jackpot = await (await jackpotText).jsonValue();
 
-  const getJackpot = await page.evaluate(() => {
-    let jackpot = document.querySelectorAll(
-      "#draw_history_lotto > ul > li:nth-child(2) > ul > li.table_cell.table_cell_2.table_cell_2_width_no_raffle > div > span"
-    );
+  const [numbersElement] = await page.$x(
+    '//*[@id="draw_history_lotto"]/ul/li[2]/ul/li[3]/div/span'
+  );
+  const numbersText = numbersElement.getProperty("innerText");
+  const numbers = await (await numbersText).jsonValue();
 
-    let jackpotAmount = [...jackpot];
-    return jackpotAmount.map((e) => e.innerText);
-  });
+  const [bonusBallElement] = await page.$x(
+    '//*[@id="draw_history_lotto"]/ul/li[2]/ul/li[4]/div/span'
+  );
+  const bonusBallText = bonusBallElement.getProperty("innerText");
+  const bonusBall = await (await bonusBallText).jsonValue();
 
-  const getNumbers = await page.evaluate(() => {
-    let numbers = document.querySelectorAll(
-      "#draw_history_lotto > ul > li:nth-child(2) > ul > li.table_cell.table_cell_3.table_cell_3_width_no_raffle > div > span"
-    );
+  const acceptCookies = await page.$x(
+    '//*[@id="cuk_cookie_consent_content_inner"]/div[3]/div/div/div/div/div[3]/a[1]'
+  );
 
-    let drawNumbers = [...numbers];
-    return drawNumbers.map((e) => e.innerText);
-  });
+  await page.waitFor(2000);
 
-  const getBonus = await page.evaluate(() => {
-    let bonus = document.querySelectorAll(
-      "#draw_history_lotto > ul > li:nth-child(2) > ul > li.table_cell.table_cell_4.table_cell_4_width_no_raffle > div > span"
-    );
+  for (const accept of acceptCookies) {
+    await accept.click();
+  }
 
-    let bonusBall = [...bonus];
-    return bonusBall.map((e) => e.innerText);
-  });
+  const prizeLink = await page.$x('//*[@id="prize_breakdown_51319"]');
 
-  console.log(getDrawDate);
-  console.log(getJackpot);
-  console.log(getNumbers);
-  console.log(getBonus);
+  for (const href of prizeLink) {
+    await href.click();
+  }
+
+  await page.waitFor(2000);
+
+  const [winnersLinkElement] = await page.$x('//*[@id="winners_count_0"]/div');
+  const winnersHref = winnersLinkElement.getProperty("innerText");
+  const winners = await (await winnersHref).jsonValue();
+
+  await page.waitFor(1000);
+
+  await page.goto(home);
+
+  const [nextDrawAmountElement] = await page.$x(
+    '//*[@id="nextdrawpromo"]/h2/span[2]/span[1]'
+  );
+  const nextDrawAmountText = nextDrawAmountElement.getProperty("innerText");
+  const nextDrawAmountAmount = await (await nextDrawAmountText).jsonValue();
 
   await browser.close();
-})();
+
+  console.log({ draw, jackpot, numbers, bonusBall, winners });
+  console.log("NEXT DRAW JACKPOT:", nextDrawAmountAmount);
+
+  return { draw, jackpot, numbers, bonusBall, winners };
+};
+
+LottoScraper();
