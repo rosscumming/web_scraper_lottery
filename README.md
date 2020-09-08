@@ -2,7 +2,7 @@
 
 **Continuous development (WIP)**<br>
 
-![test](https://prjimgs.s3.eu-west-2.amazonaws.com/web_scrape.gif)
+![Gif of scraper in action](web_scrape.gif)
 
 
 A simple app I made to learn and play with the node library, Puppeteer. Currently the app scrapes the latest National Lottery draw information by navigating to different pages to retrieve this data before finally navigating to the home page to gather next draws jackpot.
