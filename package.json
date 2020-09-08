@@ -1,0 +1,22 @@
+{
+  "name": "web_scraper_lottery",
+  "version": "1.0.0",
+  "description": "**Continuous development (WIP)**<br> A simple app I made to learn and play with the node library, Puppeteer. Currently the app scrapes the latest National Lottery draw information by navigating to different pages to retrieve this data before finally navigating to the home page to gather next draws jackpot.",
+  "main": "scraper.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rosscumming/web_scraper_lottery.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rosscumming/web_scraper_lottery/issues"
+  },
+  "homepage": "https://github.com/rosscumming/web_scraper_lottery#readme",
+  "dependencies": {
+    "puppeteer": "^5.2.1"
+  }
+}
